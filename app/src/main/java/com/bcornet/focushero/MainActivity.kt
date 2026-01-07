@@ -11,8 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
-import com.bcornet.focushero.ui.navigation.AppNavHost
 import com.bcornet.focushero.ui.theme.FocusHeroTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,8 +19,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FocusHeroTheme {
-                val navController = rememberNavController()
-                AppNavHost(navController = navController)
+                com.bcornet.focushero.ui.screens.MainScaffold()
             }
         }
     }
