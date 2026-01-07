@@ -1,4 +1,5 @@
-package com.bcornet.focushero.ui.screens.sessions
+package com.bcornet.focushero.ui.screens.stats
+
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SessionsScreen(
+fun StatsScreen(
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     Surface(
@@ -29,12 +30,12 @@ fun SessionsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Sessions",
+                text = "Stats",
                 style = MaterialTheme.typography.headlineLarge
             )
 
             Text(
-                text = "Hier komt sessiehistoriek",
+                text = "Hier komen grafieken en samenvattingen",
                 style = MaterialTheme.typography.bodyLarge
             )
         }
