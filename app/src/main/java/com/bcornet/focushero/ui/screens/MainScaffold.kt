@@ -81,6 +81,7 @@ fun MainScaffold(
         AppNavHost(
             navController = navController,
             startDestination = Routes.Focus,
+            contentPadding = innerPadding,
         )
     }
 }
