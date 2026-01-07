@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.bcornet.focushero.PlaceholderScreen
 
 @Composable
 fun AppNavHost(
@@ -15,19 +16,19 @@ fun AppNavHost(
         startDestination = startDestination,
     ){
         composable(Routes.Focus){
-            // Placeholder
+            PlaceholderScreen(title = "Focus")
         }
 
         composable(Routes.Sessions){
-            // Placeholder
+            PlaceholderScreen(title = "Sessions")
         }
 
         composable(Routes.Stats){
-            // Placeholder
+            PlaceholderScreen(title = "Stats")
         }
 
         composable(Routes.Settings){
-            // Placeholder
+            PlaceholderScreen(title = "Settings")
         }
     }
 }
