@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bcornet.focushero.PlaceholderScreen
+import com.bcornet.focushero.ui.screens.focus.FocusRoute
 import com.bcornet.focushero.ui.screens.focus.FocusScreen
 import com.bcornet.focushero.ui.screens.sessions.SessionsScreen
 import com.bcornet.focushero.ui.screens.settings.SettingsScreen
@@ -23,7 +24,7 @@ fun AppNavHost(
         startDestination = startDestination,
     ) {
         composable(Routes.Focus) {
-            FocusScreen(contentPadding = contentPadding)
+            FocusRoute(contentPadding = contentPadding)
         }
 
         composable(Routes.Sessions) {
