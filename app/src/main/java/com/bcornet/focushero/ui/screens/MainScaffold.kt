@@ -1,8 +1,8 @@
 package com.bcornet.focushero.ui.screens
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.NavigationBar
@@ -35,7 +35,7 @@ fun MainScaffold(
         BottomNavItem(
             route = Routes.Sessions,
             label = "Sessions",
-            icon = {androidx.compose.material3.Icon(Icons.Filled.List, contentDescription = "Sessions")}
+            icon = {androidx.compose.material3.Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Sessions")}
         ),
         BottomNavItem(
             route = Routes.Stats,
