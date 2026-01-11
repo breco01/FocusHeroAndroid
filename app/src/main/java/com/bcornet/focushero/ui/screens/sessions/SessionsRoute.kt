@@ -5,13 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bcornet.focushero.data.DatabaseProvider
 import com.bcornet.focushero.data.repo.FocusSessionRepository
 
 @Composable
 fun SessionsRoute(
-    contentPadding= PaddingValues,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val context = LocalContext.current
 
@@ -22,7 +23,7 @@ fun SessionsRoute(
         factory = SessionsViewModel.Factory(repository),
     )
 
-    val uiState by vm.uiState.collectAsState()
+    val uiState = vm.uiState.collectAsState().value
 
     SessionsScreen(
         contentPadding = contentPadding,
