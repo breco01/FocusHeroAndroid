@@ -139,7 +139,7 @@ private fun SessionRow(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "${session.pointsEarned} pts",
+                    text = "Earned: ${session.pointsEarned} pts",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -149,14 +149,14 @@ private fun SessionRow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Duration: ${formatDuration(session.durationSeconds)}",
+                    text = formatDuration(session.durationSeconds),
                     style = MaterialTheme.typography.bodyLarge,
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Text(
-                    text = formatEndTime(session),
+                    text = "Ended: ${formatEndTime(session)}",
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
