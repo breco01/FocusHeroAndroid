@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -27,6 +28,10 @@ class FocusViewModel(
 
     private var tickerJob: Job? = null
     private var currentSessionStart: Instant? = null
+
+    init {
+        observeRecentSessions()
+    }
 
     fun setDurationMinutes(minutes: Int) {
         // Only editable when no session is running
@@ -101,6 +106,19 @@ class FocusViewModel(
     override fun onCleared() {
         stopTicker()
         super.onCleared()
+    }
+
+    private fun observeRecentSessions(){
+        viewModelScope.launch {
+            repository.observeSessionsMostRecentFirst()
+                .collectLatest { sessions ->
+                    _uiState.update {
+                        it.copy(
+                            recentSessions = sessions.take(5)
+                        )
+                    }
+                }
+        }
     }
 
     private fun startTicker() {

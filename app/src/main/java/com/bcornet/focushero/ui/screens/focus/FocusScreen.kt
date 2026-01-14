@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -32,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bcornet.focushero.domain.model.SessionStatus
+import com.bcornet.focushero.ui.components.FocusSessionCard
 
 @Composable
 fun FocusScreen(
@@ -65,7 +65,7 @@ fun FocusScreen(
             // HEADER
             Text(
                 text = "Focus",
-                style = MaterialTheme.typography.headlineLarge
+                style = MaterialTheme.typography.headlineLarge,
             )
 
             // RESULT BANNER
@@ -73,14 +73,14 @@ fun FocusScreen(
                 ResultBanner(
                     status = result.status,
                     pointsEarned = result.pointsEarned,
-                    onDismiss = onDismissResult
+                    onDismiss = onDismissResult,
                 )
             }
 
             // COMPANION (Placeholder)
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.elevatedCardColors()
+                colors = CardDefaults.elevatedCardColors(),
             ) {
                 Column(
                     modifier = Modifier.padding(18.dp),
@@ -90,7 +90,7 @@ fun FocusScreen(
 
                     Text(
                         text = formatAsMinutesSeconds(uiState.remainingSeconds),
-                        style = MaterialTheme.typography.displayMedium
+                        style = MaterialTheme.typography.displayMedium,
                     )
 
                     LinearProgressIndicator(
@@ -98,9 +98,9 @@ fun FocusScreen(
                         progress = {
                             sessionProgress(
                                 remainingSeconds = uiState.remainingSeconds,
-                                totalSeconds = uiState.totalSeconds
+                                totalSeconds = uiState.totalSeconds,
                             )
-                        }
+                        },
                     )
 
                     Row(
@@ -111,7 +111,7 @@ fun FocusScreen(
                             FocusSessionRunState.IDLE -> {
                                 Button(
                                     onClick = onStart,
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     Text("Start")
                                 }
@@ -120,13 +120,13 @@ fun FocusScreen(
                             FocusSessionRunState.RUNNING -> {
                                 OutlinedButton(
                                     onClick = onPause,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
                                 ) {
                                     Text("Pause")
                                 }
                                 Button(
                                     onClick = onStop,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
                                 ) {
                                     Text("Stop")
                                 }
@@ -135,13 +135,13 @@ fun FocusScreen(
                             FocusSessionRunState.PAUSED -> {
                                 OutlinedButton(
                                     onClick = onResume,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
                                 ) {
                                     Text("Resume")
                                 }
                                 Button(
                                     onClick = onStop,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
                                 ) {
                                     Text("Stop")
                                 }
@@ -151,7 +151,7 @@ fun FocusScreen(
 
                     Text(
                         text = "State: ${uiState.sessionStatus.name}",
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             }
@@ -172,34 +172,33 @@ fun FocusScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(
                                 onClick = onDecreaseMinutes,
-                                enabled = canEditDuration
+                                enabled = canEditDuration,
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Remove,
-                                    contentDescription = "Decrease minutes"
+                                    contentDescription = "Decrease minutes",
                                 )
                             }
 
                             Text(
                                 text = "${uiState.selectedDurationMinutes} min",
-                                style = MaterialTheme.typography.titleLarge
+                                style = MaterialTheme.typography.titleLarge,
                             )
 
                             IconButton(
                                 onClick = onIncreaseMinutes,
-                                enabled = canEditDuration
+                                enabled = canEditDuration,
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Increase minutes"
+                                    contentDescription = "Increase minutes",
                                 )
                             }
                         }
 
                         Text(
-                            text = if (canEditDuration) "Editable"
-                            else "Locked",
-                            style = MaterialTheme.typography.labelLarge
+                            text = if (canEditDuration) "Editable" else "Locked",
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
 
@@ -209,7 +208,7 @@ fun FocusScreen(
                         } else {
                             "Duration is locked during an active session."
                         },
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             }
@@ -226,23 +225,23 @@ fun FocusScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(180.dp),
-                        colors = CardDefaults.elevatedCardColors()
+                        colors = CardDefaults.elevatedCardColors(),
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp),
                             verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
                                 text = "Companion animation will appear here.",
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge,
                             )
                             Spacer(Modifier.height(6.dp))
                             Text(
                                 text = "Mood is based on your session state.",
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
                             )
                         }
                     }
@@ -258,8 +257,31 @@ fun FocusScreen(
                     Text("Progress", style = MaterialTheme.typography.titleMedium)
                     Text(
                         text = "Level, total points, and progress to next level will be shown here.",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
+                }
+            }
+
+            // RECENT SESSIONS
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text("Recent sessions", style = MaterialTheme.typography.titleMedium)
+
+                    if (uiState.recentSessions.isEmpty()) {
+                        Text(
+                            text = "No sessions yet. Complete a focus session to see it here.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            uiState.recentSessions.forEach { session ->
+                                FocusSessionCard(session = session)
+                            }
+                        }
+                    }
                 }
             }
 

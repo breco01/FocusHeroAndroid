@@ -1,5 +1,6 @@
 package com.bcornet.focushero.ui.screens.focus
 
+import com.bcornet.focushero.domain.model.FocusSession
 import com.bcornet.focushero.domain.model.SessionStatus
 
 data class FocusUiState (
@@ -10,6 +11,8 @@ data class FocusUiState (
     val totalSeconds: Int = 25 * 60,
 
     val lastSessionResult: SessionResultBanner? = null,
+
+    val recentSessions: List<FocusSession> = emptyList(),
 )
 
 enum class FocusSessionRunState {
