@@ -28,8 +28,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.ComposableOpenTarget
 
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.Zoom
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
@@ -41,7 +43,9 @@ import com.patrykandpatrick.vico.compose.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
-//import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
+import kotlin.math.roundToInt
 
 private val DailyFocusLabelsKey = ExtraStore.Key<List<String>>()
 private val DailyPointsLabelsKey = ExtraStore.Key<List<String>>()
@@ -180,7 +184,8 @@ private fun SummaryCard(
             )
 
             val total = (summary.completedSessions + summary.stoppedSessions).coerceAtLeast(0)
-            val progress = if (total == 0) 0f else summary.completedSessions.toFloat() / total.toInt()
+            val progress =
+                if (total == 0) 0f else summary.completedSessions.toFloat() / total.toInt()
 
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
@@ -211,6 +216,24 @@ private fun SummaryRow(
         )
     }
 }
+
+@Composable
+private fun rememberFixedChartInteraction() = Pair(
+    rememberVicoScrollState(scrollEnabled = false),
+    rememberVicoZoomState(
+        zoomEnabled = false,
+        initialZoom = Zoom.Content,
+        minZoom = Zoom.Content,
+        maxZoom = Zoom.Content,
+    ),
+)
+
+private fun labelSpacingFor(count: Int): Int =
+    when {
+        count <= 7 -> 1
+        count <= 14 -> 2
+        else -> 5
+    }
 
 @Composable
 private fun DailyFocusSection(
@@ -253,6 +276,7 @@ private fun DailyFocusSection(
                 }
 
                 val modelProducer = remember { CartesianChartModelProducer() }
+                val (scrollState, zoomState) = rememberFixedChartInteraction()
 
                 LaunchedEffect(daily) {
                     modelProducer.runTransaction {
@@ -283,9 +307,20 @@ private fun DailyFocusSection(
                         startAxis = VerticalAxis.rememberStart(),
                         bottomAxis = HorizontalAxis.rememberBottom(
                             valueFormatter = bottomAxisFormatter,
+                            itemPlacer = remember {
+                                HorizontalAxis.ItemPlacer.aligned(
+                                    spacing = { extraStore ->
+                                        val labels =
+                                            extraStore.getOrNull(DailyFocusLabelsKey) ?: emptyList()
+                                        labelSpacingFor(labels.size)
+                                    }
+                                )
+                            }
                         ),
                     ),
-                    modelProducer = modelProducer
+                    modelProducer = modelProducer,
+                    scrollState = scrollState,
+                    zoomState = zoomState,
                 )
             }
         }
@@ -332,13 +367,10 @@ private fun DailyPointsSection(
                 }
 
                 val modelProducer = remember { CartesianChartModelProducer() }
+                val (scrollState, zoomState) = rememberFixedChartInteraction()
 
                 LaunchedEffect(daily) {
                     modelProducer.runTransaction {
-                        extras { extraStore ->
-                            extraStore[DailyPointsLabelsKey] = labels
-                        }
-
                         // x = index
                         // y = points
                         lineSeries {
@@ -347,11 +379,10 @@ private fun DailyPointsSection(
                     }
                 }
 
-                val bottomAxisFormatter = remember {
-                    CartesianValueFormatter { context, x, _ ->
-                        val list = context.extraStore.getOrNull(DailyPointsLabelsKey) ?: emptyList()
-                        val idx = x.toInt()
-                        list.getOrNull(idx) ?: "_"
+                val bottomAxisFormatter = remember(labels) {
+                    CartesianValueFormatter { _, x, _ ->
+                        val idx = x.roundToInt()
+                        labels.getOrNull(idx) ?: "—"
                     }
                 }
 
@@ -364,9 +395,16 @@ private fun DailyPointsSection(
                         startAxis = VerticalAxis.rememberStart(),
                         bottomAxis = HorizontalAxis.rememberBottom(
                             valueFormatter = bottomAxisFormatter,
+                            itemPlacer = remember(daily) {
+                                HorizontalAxis.ItemPlacer.aligned(
+                                    spacing = { labelSpacingFor(daily.size) }
+                                )
+                            },
                         ),
                     ),
                     modelProducer = modelProducer,
+                    scrollState = scrollState,
+                    zoomState = zoomState,
                 )
             }
         }
@@ -416,6 +454,7 @@ private fun DailyOutcomesSection(
                 val stopped = remember(daily) { daily.map { it.stoppedCount } }
 
                 val modelProducer = remember { CartesianChartModelProducer() }
+                val (scrollState, zoomState) = rememberFixedChartInteraction()
 
                 LaunchedEffect(daily) {
                     modelProducer.runTransaction {
@@ -433,7 +472,8 @@ private fun DailyOutcomesSection(
 
                 val bottomAxisFormatter = remember {
                     CartesianValueFormatter { context, x, _ ->
-                        val list = context.model.extraStore.getOrNull(DailyOutcomesLabelsKey) ?: emptyList()
+                        val list = context.model.extraStore.getOrNull(DailyOutcomesLabelsKey)
+                            ?: emptyList()
                         val idx = x.toInt()
                         list.getOrNull(idx) ?: "—"
                     }
@@ -451,9 +491,20 @@ private fun DailyOutcomesSection(
                         startAxis = VerticalAxis.rememberStart(),
                         bottomAxis = HorizontalAxis.rememberBottom(
                             valueFormatter = bottomAxisFormatter,
+                            itemPlacer = remember {
+                                HorizontalAxis.ItemPlacer.aligned(
+                                    spacing = { extraStore ->
+                                        val labels = extraStore.getOrNull(DailyOutcomesLabelsKey)
+                                            ?: emptyList()
+                                        labelSpacingFor(labels.size)
+                                    }
+                                )
+                            }
                         ),
                     ),
                     modelProducer = modelProducer,
+                    scrollState = scrollState,
+                    zoomState = zoomState,
                 )
             }
         }
@@ -506,6 +557,7 @@ private fun WeeklyFocusSection(
                 val values = remember(weekly) { weekly.map { it.focusMinutes } }
 
                 val modelProducer = remember { CartesianChartModelProducer() }
+                val (scrollState, zoomState) = rememberFixedChartInteraction()
 
                 LaunchedEffect(weekly) {
                     modelProducer.runTransaction {
@@ -520,7 +572,8 @@ private fun WeeklyFocusSection(
 
                 val bottomAxisFormatter = remember {
                     CartesianValueFormatter { context, x, _ ->
-                        val list = context.model.extraStore.getOrNull(WeeklyFocusLabelsKey) ?: emptyList()
+                        val list =
+                            context.model.extraStore.getOrNull(WeeklyFocusLabelsKey) ?: emptyList()
                         val idx = x.toInt()
                         list.getOrNull(idx) ?: "—"
                     }
@@ -535,9 +588,14 @@ private fun WeeklyFocusSection(
                         startAxis = VerticalAxis.rememberStart(),
                         bottomAxis = HorizontalAxis.rememberBottom(
                             valueFormatter = bottomAxisFormatter,
+                            itemPlacer = remember {
+                                HorizontalAxis.ItemPlacer.aligned(spacing = { 1 })
+                            }
                         ),
                     ),
                     modelProducer = modelProducer,
+                    scrollState = scrollState,
+                    zoomState = zoomState,
                 )
             }
         }
