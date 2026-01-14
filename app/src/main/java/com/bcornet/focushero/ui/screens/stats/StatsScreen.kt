@@ -27,8 +27,12 @@ import java.util.Locale
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.ComposableOpenTarget
+import androidx.compose.ui.draw.clip
 
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
@@ -111,21 +115,32 @@ private fun RangeSelector(
     selected: StatsRange,
     onSelected: (StatsRange) -> Unit,
 ) {
+    val shape = RoundedCornerShape(14.dp)
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         StatsRange.values().forEach { range ->
             val isSelected = range == selected
 
-            TextButton(
+            OutlinedButton(
                 onClick = { onSelected(range) },
-                modifier = Modifier.wrapContentWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(40.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                ),
             ) {
                 Text(
                     text = range.label,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 )
             }
         }
@@ -280,21 +295,16 @@ private fun DailyFocusSection(
 
                 LaunchedEffect(daily) {
                     modelProducer.runTransaction {
-                        extras { extraStore ->
-                            extraStore[DailyFocusLabelsKey] = labels
-                        }
                         columnSeries {
                             series(daily.map { it.value })
                         }
                     }
                 }
 
-                val bottomAxisFormatter = remember {
-                    CartesianValueFormatter { context, x, _ ->
-                        val list =
-                            context.model.extraStore.getOrNull(DailyFocusLabelsKey) ?: emptyList()
-                        val idx = x.toInt()
-                        list.getOrNull(idx) ?: "_"
+                val bottomAxisFormatter = remember(labels) {
+                    CartesianValueFormatter { _, x, _ ->
+                        val idx = x.roundToInt()
+                        labels.getOrNull(idx) ?: "_"
                     }
                 }
 
@@ -307,15 +317,11 @@ private fun DailyFocusSection(
                         startAxis = VerticalAxis.rememberStart(),
                         bottomAxis = HorizontalAxis.rememberBottom(
                             valueFormatter = bottomAxisFormatter,
-                            itemPlacer = remember {
+                            itemPlacer = remember(daily) {
                                 HorizontalAxis.ItemPlacer.aligned(
-                                    spacing = { extraStore ->
-                                        val labels =
-                                            extraStore.getOrNull(DailyFocusLabelsKey) ?: emptyList()
-                                        labelSpacingFor(labels.size)
-                                    }
+                                    spacing = { labelSpacingFor(daily.size) }
                                 )
-                            }
+                            },
                         ),
                     ),
                     modelProducer = modelProducer,
@@ -382,7 +388,7 @@ private fun DailyPointsSection(
                 val bottomAxisFormatter = remember(labels) {
                     CartesianValueFormatter { _, x, _ ->
                         val idx = x.roundToInt()
-                        labels.getOrNull(idx) ?: "—"
+                        labels.getOrNull(idx) ?: "_"
                     }
                 }
 
@@ -458,24 +464,19 @@ private fun DailyOutcomesSection(
 
                 LaunchedEffect(daily) {
                     modelProducer.runTransaction {
-                        extras { extraStore ->
-                            extraStore[DailyOutcomesLabelsKey] = labels
-                        }
                         columnSeries {
                             // 2 series
                             // Later stacked using mergeMod
-                            series(completed)
-                            series(stopped)
+                            series(daily.map { it.completedCount })
+                            series(daily.map { it.stoppedCount })
                         }
                     }
                 }
 
-                val bottomAxisFormatter = remember {
-                    CartesianValueFormatter { context, x, _ ->
-                        val list = context.model.extraStore.getOrNull(DailyOutcomesLabelsKey)
-                            ?: emptyList()
-                        val idx = x.toInt()
-                        list.getOrNull(idx) ?: "—"
+                val bottomAxisFormatter = remember(labels) {
+                    CartesianValueFormatter { _, x, _ ->
+                        val idx = x.roundToInt()
+                        labels.getOrNull(idx) ?: "_"
                     }
                 }
 
@@ -491,15 +492,11 @@ private fun DailyOutcomesSection(
                         startAxis = VerticalAxis.rememberStart(),
                         bottomAxis = HorizontalAxis.rememberBottom(
                             valueFormatter = bottomAxisFormatter,
-                            itemPlacer = remember {
+                            itemPlacer = remember(daily) {
                                 HorizontalAxis.ItemPlacer.aligned(
-                                    spacing = { extraStore ->
-                                        val labels = extraStore.getOrNull(DailyOutcomesLabelsKey)
-                                            ?: emptyList()
-                                        labelSpacingFor(labels.size)
-                                    }
+                                    spacing = { labelSpacingFor(daily.size) }
                                 )
-                            }
+                            },
                         ),
                     ),
                     modelProducer = modelProducer,
@@ -561,21 +558,16 @@ private fun WeeklyFocusSection(
 
                 LaunchedEffect(weekly) {
                     modelProducer.runTransaction {
-                        extras { extraStore ->
-                            extraStore[WeeklyFocusLabelsKey] = labels
-                        }
                         columnSeries {
-                            series(values)
+                            series(weekly.map { it.focusMinutes })
                         }
                     }
                 }
 
-                val bottomAxisFormatter = remember {
-                    CartesianValueFormatter { context, x, _ ->
-                        val list =
-                            context.model.extraStore.getOrNull(WeeklyFocusLabelsKey) ?: emptyList()
-                        val idx = x.toInt()
-                        list.getOrNull(idx) ?: "—"
+                val bottomAxisFormatter = remember(labels) {
+                    CartesianValueFormatter { _, x, _ ->
+                        val idx = x.roundToInt()
+                        labels.getOrNull(idx) ?: "_"
                     }
                 }
 
@@ -590,7 +582,7 @@ private fun WeeklyFocusSection(
                             valueFormatter = bottomAxisFormatter,
                             itemPlacer = remember {
                                 HorizontalAxis.ItemPlacer.aligned(spacing = { 1 })
-                            }
+                            },
                         ),
                     ),
                     modelProducer = modelProducer,
