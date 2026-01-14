@@ -35,16 +35,16 @@ import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
-import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.lineSeries
+import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
-
 //import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 
 private val DailyFocusLabelsKey = ExtraStore.Key<List<String>>()
 private val DailyPointsLabelsKey = ExtraStore.Key<List<String>>()
+private val DailyOutcomesLabelsKey = ExtraStore.Key<List<String>>()
 
 @Composable
 fun StatsScreen(
@@ -64,8 +64,7 @@ fun StatsScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Text(
-                text = "Stats",
-                style = MaterialTheme.typography.headlineLarge
+                text = "Stats", style = MaterialTheme.typography.headlineLarge
             )
 
             RangeSelector(
@@ -258,7 +257,8 @@ private fun DailyFocusSection(
 
                 val bottomAxisFormatter = remember {
                     CartesianValueFormatter { context, x, _ ->
-                        val list = context.model.extraStore.getOrNull(DailyFocusLabelsKey) ?: emptyList()
+                        val list =
+                            context.model.extraStore.getOrNull(DailyFocusLabelsKey) ?: emptyList()
                         val idx = x.toInt()
                         list.getOrNull(idx) ?: "_"
                     }
@@ -377,6 +377,14 @@ private fun DailyOutcomesSection(
             fontWeight = FontWeight.SemiBold,
         )
 
+        if (daily.isEmpty()) {
+            Text(
+                text = "No outcome data in this range.",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            return@Column
+        }
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -385,38 +393,58 @@ private fun DailyOutcomesSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                val formatter = DateTimeFormatter.ofPattern("EEE, MMM d", Locale.US)
+                val labelFormatter = remember {
+                    DateTimeFormatter.ofPattern("EE d", Locale.US)
+                }
+                val labels = remember(daily) {
+                    daily.map { it.date.format(labelFormatter) }
+                }
 
-                daily.forEach { point ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = formatter.format(point.date),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
+                val completed = remember(daily) { daily.map { it.completedCount } }
+                val stopped = remember(daily) { daily.map { it.stoppedCount } }
 
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = "Completed: ${point.completedCount}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                            Text(
-                                text = "Stopped: ${point.stoppedCount}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.SemiBold,
-                            )
+                val modelProducer = remember { CartesianChartModelProducer() }
+
+                LaunchedEffect(daily) {
+                    modelProducer.runTransaction {
+                        extras { extraStore ->
+                            extraStore[DailyOutcomesLabelsKey] = labels
+                        }
+                        columnSeries {
+                            // 2 series
+                            // Later stacked using mergeMod
+                            series(completed)
+                            series(stopped)
                         }
                     }
                 }
+
+                val bottomAxisFormatter = remember {
+                    CartesianValueFormatter { context, x, _ ->
+                        val list = context.model.extraStore.getOrNull(DailyOutcomesLabelsKey) ?: emptyList()
+                        val idx = x.toInt()
+                        list.getOrNull(idx) ?: "—"
+                    }
+                }
+
+                CartesianChartHost(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    chart = rememberCartesianChart(
+                        // Stacked bars:
+                        rememberColumnCartesianLayer(
+                            mergeMode = { ColumnCartesianLayer.MergeMode.Stacked },
+                        ),
+                        startAxis = VerticalAxis.rememberStart(),
+                        bottomAxis = HorizontalAxis.rememberBottom(
+                            valueFormatter = bottomAxisFormatter,
+                        ),
+                    ),
+                    modelProducer = modelProducer,
+                )
             }
         }
     }
