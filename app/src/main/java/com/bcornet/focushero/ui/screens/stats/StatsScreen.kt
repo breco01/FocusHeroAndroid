@@ -45,6 +45,7 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLa
 private val DailyFocusLabelsKey = ExtraStore.Key<List<String>>()
 private val DailyPointsLabelsKey = ExtraStore.Key<List<String>>()
 private val DailyOutcomesLabelsKey = ExtraStore.Key<List<String>>()
+private val WeeklyFocusLabelsKey = ExtraStore.Key<List<String>>()
 
 @Composable
 fun StatsScreen(
@@ -464,6 +465,14 @@ private fun WeeklyFocusSection(
             fontWeight = FontWeight.SemiBold,
         )
 
+        if (weekly.isEmpty()) {
+            Text(
+                text = "No weekly data available.",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            return@Column
+        }
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -472,31 +481,58 @@ private fun WeeklyFocusSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                val formatter = DateTimeFormatter.ofPattern("MMM d", Locale.US)
+                val labelFormatter = remember {
+                    DateTimeFormatter.ofPattern("MMM d", Locale.US) // e.g., "Jan 8"
+                }
 
-                weekly.forEach { w ->
-                    val weekEnd = w.weekStart.plusDays(6)
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "${formatter.format(w.weekStart)} – ${formatter.format(weekEnd)}",
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        Text(
-                            text = "${w.focusMinutes} min",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold,
-                        )
+                val labels = remember(weekly) {
+                    weekly.map { w ->
+                        // Label as "Jan 8" (week start)
+                        w.weekStart.format(labelFormatter)
                     }
                 }
+
+                val values = remember(weekly) { weekly.map { it.focusMinutes } }
+
+                val modelProducer = remember { CartesianChartModelProducer() }
+
+                LaunchedEffect(weekly) {
+                    modelProducer.runTransaction {
+                        extras { extraStore ->
+                            extraStore[WeeklyFocusLabelsKey] = labels
+                        }
+                        columnSeries {
+                            series(values)
+                        }
+                    }
+                }
+
+                val bottomAxisFormatter = remember {
+                    CartesianValueFormatter { context, x, _ ->
+                        val list = context.model.extraStore.getOrNull(WeeklyFocusLabelsKey) ?: emptyList()
+                        val idx = x.toInt()
+                        list.getOrNull(idx) ?: "—"
+                    }
+                }
+
+                CartesianChartHost(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    chart = rememberCartesianChart(
+                        rememberColumnCartesianLayer(),
+                        startAxis = VerticalAxis.rememberStart(),
+                        bottomAxis = HorizontalAxis.rememberBottom(
+                            valueFormatter = bottomAxisFormatter,
+                        ),
+                    ),
+                    modelProducer = modelProducer,
+                )
             }
         }
     }
 }
+
 
