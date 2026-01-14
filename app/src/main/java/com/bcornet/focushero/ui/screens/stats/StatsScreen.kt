@@ -37,9 +37,14 @@ import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.compose.common.data.ExtraStore
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+
+//import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 
 private val DailyFocusLabelsKey = ExtraStore.Key<List<String>>()
+private val DailyPointsLabelsKey = ExtraStore.Key<List<String>>()
 
 @Composable
 fun StatsScreen(
@@ -254,7 +259,8 @@ private fun DailyFocusSection(
                 val bottomAxisFormatter = remember {
                     CartesianValueFormatter { context, x, _ ->
                         val list = context.model.extraStore.getOrNull(DailyFocusLabelsKey) ?: emptyList()
-                        list.getOrNull(x.toInt()) ?: ""
+                        val idx = x.toInt()
+                        list.getOrNull(idx) ?: "_"
                     }
                 }
 
@@ -290,6 +296,14 @@ private fun DailyPointsSection(
             fontWeight = FontWeight.SemiBold,
         )
 
+        if (daily.isEmpty()) {
+            Text(
+                text = "No points data in this range.",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            return@Column
+        }
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -298,27 +312,52 @@ private fun DailyPointsSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                val formatter = DateTimeFormatter.ofPattern("EEE, MMM d", Locale.US)
+                val labelFormatter = remember {
+                    DateTimeFormatter.ofPattern("EE d", Locale.US)
+                }
+                val labels = remember(daily) {
+                    daily.map { it.date.format(labelFormatter) }
+                }
 
-                daily.forEach { point ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = formatter.format(point.date),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        Text(
-                            text = "${point.value} pts",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold,
-                        )
+                val modelProducer = remember { CartesianChartModelProducer() }
+
+                LaunchedEffect(daily) {
+                    modelProducer.runTransaction {
+                        extras { extraStore ->
+                            extraStore[DailyPointsLabelsKey] = labels
+                        }
+
+                        // x = index
+                        // y = points
+                        lineSeries {
+                            series(daily.map { it.value })
+                        }
                     }
                 }
+
+                val bottomAxisFormatter = remember {
+                    CartesianValueFormatter { context, x, _ ->
+                        val list = context.extraStore.getOrNull(DailyPointsLabelsKey) ?: emptyList()
+                        val idx = x.toInt()
+                        list.getOrNull(idx) ?: "_"
+                    }
+                }
+
+                CartesianChartHost(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    chart = rememberCartesianChart(
+                        rememberLineCartesianLayer(),
+                        startAxis = VerticalAxis.rememberStart(),
+                        bottomAxis = HorizontalAxis.rememberBottom(
+                            valueFormatter = bottomAxisFormatter,
+                        ),
+                    ),
+                    modelProducer = modelProducer,
+                )
             }
         }
     }
