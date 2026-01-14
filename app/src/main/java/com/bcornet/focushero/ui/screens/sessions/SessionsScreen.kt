@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,8 +19,11 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.PauseCircle
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,6 +39,8 @@ import com.bcornet.focushero.domain.model.SessionStatus
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+
+private val LevelUpColor = Color(0xFF3287FF)
 
 @Composable
 fun SessionsScreen(
@@ -82,7 +89,7 @@ fun SessionsScreen(
                     )
                 }
 
-                uiState.sessions.isEmpty() -> {
+                uiState.items.isEmpty() -> {
                     CenterState(
                         icon = {
                             Icon(
@@ -96,9 +103,7 @@ fun SessionsScreen(
                 }
 
                 else -> {
-                    SessionsList(
-                        sessions = uiState.sessions,
-                    )
+                    SessionsList(items = uiState.items)
                 }
             }
         }
@@ -151,39 +156,89 @@ private fun CenterState(
 
 @Composable
 private fun SessionsList(
-    sessions: List<FocusSession>,
+    items: List<SessionsListItem>,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         contentPadding = PaddingValues(bottom = 24.dp),
     ) {
         items(
-            items = sessions,
-            key = { it.id },
-        ) { session ->
-            SessionCard(session = session)
+            items = items,
+            key = { item ->
+                when (item) {
+                    is SessionsListItem.SessionItem -> "session-${item.session.id}"
+                    is SessionsListItem.LevelUpItem -> "levelup-${item.level}"
+                }
+            },
+        ) { item ->
+            when (item) {
+                is SessionsListItem.SessionItem -> SessionCard(session = item.session)
+                is SessionsListItem.LevelUpItem -> LevelUpCard(level = item.level)
+            }
         }
     }
 }
+
+@Composable
+private fun LevelUpCard(
+    level: Int,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Divider(
+            modifier = Modifier.weight(1f),
+            color = LevelUpColor.copy(alpha = 0.3f),
+        )
+
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Star,
+                contentDescription = null,
+                tint = LevelUpColor,
+                modifier = Modifier.size(16.dp),
+            )
+            Text(
+                text = "Level $level reached",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = LevelUpColor,
+            )
+        }
+
+        Divider(
+            modifier = Modifier.weight(1f),
+            color = LevelUpColor.copy(alpha = 0.3f),
+        )
+    }
+}
+
 
 @Composable
 private fun SessionCard(
     session: FocusSession,
 ) {
     Card(
-    modifier = Modifier.fillMaxWidth(),
-    colors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surface,
-    ),
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             // HEADER - Date + Status
             Row(
@@ -191,32 +246,31 @@ private fun SessionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Column(
+                Text(
+                    text = formatEndTime(session),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(
-                        text = formatEndTime(session),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
+                )
 
                 StatusBadge(status = session.status)
             }
             // DETAILS - Duration + Points
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 InlineDetail(
                     label = "Duration",
                     value = formatDuration(session.durationSeconds),
+                    modifier = Modifier.weight(1f),
+                    alignEnd = false,
                 )
                 InlineDetail(
                     label = "Points earned",
-                    value = "${session.pointsEarned}",
+                    value = session.pointsEarned.toString(),
+                    modifier = Modifier.weight(1f),
+                    alignEnd = false,
                 )
             }
         }
@@ -228,7 +282,12 @@ private fun StatusBadge(
     status: SessionStatus,
 ) {
     val (label, icon, accent) = when (status) {
-        SessionStatus.COMPLETED -> Triple("Completed", Icons.Outlined.CheckCircle, Color(0xFF22C55E))
+        SessionStatus.COMPLETED -> Triple(
+            "Completed",
+            Icons.Outlined.CheckCircle,
+            Color(0xFF22C55E)
+        )
+
         SessionStatus.STOPPED -> Triple("Stopped", Icons.Outlined.PauseCircle, Color(0xFFF97316))
     }
 
@@ -264,20 +323,27 @@ private fun StatusBadge(
 private fun InlineDetail(
     label: String,
     value: String,
+    modifier: Modifier = Modifier,
+    alignEnd: Boolean,
 ) {
+    val arrangement = if (alignEnd) Arrangement.End else Arrangement.Start
+
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = arrangement,
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
         )
+        Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = value,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
