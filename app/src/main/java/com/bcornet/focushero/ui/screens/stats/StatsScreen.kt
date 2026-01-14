@@ -442,9 +442,6 @@ private fun DailyOutcomesSection(
             return@Column
         }
 
-        val completedColor = androidx.compose.ui.graphics.Color(0xFF22C55E)
-        val stoppedColor = androidx.compose.ui.graphics.Color(0xFFF97316)
-
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -485,8 +482,11 @@ private fun DailyOutcomesSection(
 
                 OutcomesLegend()
 
+                val completed = completedColor()
+                val stopped = stoppedColor()
+
                 val vicoTheme = rememberM3VicoTheme(
-                    columnCartesianLayerColors = listOf(completedColor, stoppedColor),
+                    columnCartesianLayerColors = listOf(completed, stopped),
                 )
 
                 ProvideVicoTheme(vicoTheme) {
