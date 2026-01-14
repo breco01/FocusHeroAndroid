@@ -27,6 +27,7 @@ import java.util.Locale
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.LinearProgressIndicator
 
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
@@ -176,6 +177,14 @@ private fun SummaryCard(
             SummaryRow(
                 "Completion rate",
                 "${summary.completionRatePercent}%",
+            )
+
+            val total = (summary.completedSessions + summary.stoppedSessions).coerceAtLeast(0)
+            val progress = if (total == 0) 0f else summary.completedSessions.toFloat() / total.toInt()
+
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth(),
+                progress = { progress.coerceIn(0f, 1f) },
             )
         }
     }
