@@ -1,14 +1,15 @@
 package com.bcornet.focushero.ui.screens.stats
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -16,7 +17,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,11 +27,12 @@ import java.util.Locale
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.ui.draw.clip
 
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -45,16 +46,12 @@ import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProdu
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
-import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
+import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
+import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
 import kotlin.math.roundToInt
-
-private val DailyFocusLabelsKey = ExtraStore.Key<List<String>>()
-private val DailyPointsLabelsKey = ExtraStore.Key<List<String>>()
-private val DailyOutcomesLabelsKey = ExtraStore.Key<List<String>>()
-private val WeeklyFocusLabelsKey = ExtraStore.Key<List<String>>()
 
 @Composable
 fun StatsScreen(
@@ -200,7 +197,7 @@ private fun SummaryCard(
 
             val total = (summary.completedSessions + summary.stoppedSessions).coerceAtLeast(0)
             val progress =
-                if (total == 0) 0f else summary.completedSessions.toFloat() / total.toInt()
+                if (total == 0) 0f else summary.completedSessions.toFloat() / total.toFloat()
 
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
@@ -418,6 +415,12 @@ private fun DailyPointsSection(
 }
 
 @Composable
+private fun completedColor() = androidx.compose.ui.graphics.Color(0xFF22C55E)
+
+@Composable
+private fun stoppedColor() = androidx.compose.ui.graphics.Color(0xFFF97316)
+
+@Composable
 private fun DailyOutcomesSection(
     daily: List<DailyOutcomeCounts>,
 ) {
@@ -439,6 +442,9 @@ private fun DailyOutcomesSection(
             return@Column
         }
 
+        val completedColor = androidx.compose.ui.graphics.Color(0xFF22C55E)
+        val stoppedColor = androidx.compose.ui.graphics.Color(0xFFF97316)
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -456,18 +462,15 @@ private fun DailyOutcomesSection(
                     daily.map { it.date.format(labelFormatter) }
                 }
 
-                val completed = remember(daily) { daily.map { it.completedCount } }
-                val stopped = remember(daily) { daily.map { it.stoppedCount } }
-
                 val modelProducer = remember { CartesianChartModelProducer() }
                 val (scrollState, zoomState) = rememberFixedChartInteraction()
 
                 LaunchedEffect(daily) {
                     modelProducer.runTransaction {
                         columnSeries {
-                            // 2 series
-                            // Later stacked using mergeMod
+                            // Serie 0 = completed
                             series(daily.map { it.completedCount })
+                            // Serie 1 = stopped
                             series(daily.map { it.stoppedCount })
                         }
                     }
@@ -476,37 +479,45 @@ private fun DailyOutcomesSection(
                 val bottomAxisFormatter = remember(labels) {
                     CartesianValueFormatter { _, x, _ ->
                         val idx = x.roundToInt()
-                        labels.getOrNull(idx) ?: "_"
+                        labels.getOrNull(idx) ?: "—"
                     }
                 }
 
-                CartesianChartHost(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp),
-                    chart = rememberCartesianChart(
-                        // Stacked bars:
-                        rememberColumnCartesianLayer(
-                            mergeMode = { ColumnCartesianLayer.MergeMode.Stacked },
-                        ),
-                        startAxis = VerticalAxis.rememberStart(),
-                        bottomAxis = HorizontalAxis.rememberBottom(
-                            valueFormatter = bottomAxisFormatter,
-                            itemPlacer = remember(daily) {
-                                HorizontalAxis.ItemPlacer.aligned(
-                                    spacing = { labelSpacingFor(daily.size) }
-                                )
-                            },
-                        ),
-                    ),
-                    modelProducer = modelProducer,
-                    scrollState = scrollState,
-                    zoomState = zoomState,
+                OutcomesLegend()
+
+                val vicoTheme = rememberM3VicoTheme(
+                    columnCartesianLayerColors = listOf(completedColor, stoppedColor),
                 )
+
+                ProvideVicoTheme(vicoTheme) {
+                    CartesianChartHost(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        chart = rememberCartesianChart(
+                            rememberColumnCartesianLayer(
+                                mergeMode = { ColumnCartesianLayer.MergeMode.Stacked },
+                            ),
+                            startAxis = VerticalAxis.rememberStart(),
+                            bottomAxis = HorizontalAxis.rememberBottom(
+                                valueFormatter = bottomAxisFormatter,
+                                itemPlacer = remember(daily) {
+                                    HorizontalAxis.ItemPlacer.aligned(
+                                        spacing = { labelSpacingFor(daily.size) }
+                                    )
+                                },
+                            ),
+                        ),
+                        modelProducer = modelProducer,
+                        scrollState = scrollState,
+                        zoomState = zoomState,
+                    )
+                }
             }
         }
     }
 }
+
 
 @Composable
 private fun WeeklyFocusSection(
@@ -551,8 +562,6 @@ private fun WeeklyFocusSection(
                     }
                 }
 
-                val values = remember(weekly) { weekly.map { it.focusMinutes } }
-
                 val modelProducer = remember { CartesianChartModelProducer() }
                 val (scrollState, zoomState) = rememberFixedChartInteraction()
 
@@ -594,4 +603,35 @@ private fun WeeklyFocusSection(
     }
 }
 
+@Composable
+private fun OutcomesLegend() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        LegendItem(label = "Completed", color = completedColor())
+        LegendItem(label = "Stopped", color = stoppedColor())
+    }
+}
 
+@Composable
+private fun LegendItem(
+    label: String,
+    color: androidx.compose.ui.graphics.Color,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .background(color = color, shape = CircleShape),
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+    }
+}
