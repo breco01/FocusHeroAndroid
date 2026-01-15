@@ -45,8 +45,9 @@ enum class AccentColorOption {
     BLUE,
     GREEN,
     ORANGE,
-    PURPLE,
     PINK,
+    YELLOW,
+    RED,
 }
 
 data class AchievementUi(

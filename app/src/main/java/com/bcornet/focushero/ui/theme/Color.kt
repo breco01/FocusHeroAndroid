@@ -16,8 +16,10 @@ val Pink40 = Color(0xFF7D5260)
 val AccentBlue = Color(0xFF3B82F6)
 val AccentGreen = Color(0xFF22C55E)
 val AccentOrange = Color(0xFFF97316)
-val AccentPurple = Color(0xFF8B5CF6)
 val AccentPink = Color(0xFFEC4899)
+val AccentYellow = Color(0xFFEAB308)
+val AccentRed = Color(0xFFEF4444)
+
 
 fun accentColorFor(option: AccentColorOption): Color {
     return when (option) {
@@ -25,7 +27,8 @@ fun accentColorFor(option: AccentColorOption): Color {
         AccentColorOption.BLUE -> AccentBlue
         AccentColorOption.GREEN -> AccentGreen
         AccentColorOption.ORANGE -> AccentOrange
-        AccentColorOption.PURPLE -> AccentPurple
         AccentColorOption.PINK -> AccentPink
+        AccentColorOption.YELLOW -> AccentYellow
+        AccentColorOption.RED -> AccentRed
     }
 }
