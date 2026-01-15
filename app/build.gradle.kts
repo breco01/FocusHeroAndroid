@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
 
+    implementation("com.airbnb.android:lottie-compose:6.6.2")
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
