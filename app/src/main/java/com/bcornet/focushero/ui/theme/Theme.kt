@@ -1,6 +1,5 @@
 package com.bcornet.focushero.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -44,12 +43,14 @@ fun FocusHeroTheme(
 
     val context = LocalContext.current
 
+    val useDynamic = dynamicColor &&
+            accentColorOption == AccentColorOption.DEFAULT &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
     val baseScheme = when {
-        dynamicColor &&
-                accentColorOption == AccentColorOption.DEFAULT &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+        useDynamic -> if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(
+            context
+        )
 
         isDark -> DarkColorScheme
         else -> LightColorScheme
