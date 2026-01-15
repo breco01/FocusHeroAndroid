@@ -84,6 +84,7 @@ class ProfileViewModel(
                         unlockedAchievements = eval.unlocked,
                         lockedAchievements = eval.locked,
 
+                        // Route overschrijft deze met DataStore waarden
                         themePreference = ThemePreference.SYSTEM,
                         accentColor = AccentColorOption.DEFAULT,
                     )
@@ -118,118 +119,154 @@ class ProfileViewModel(
 
         val all = buildList {
             // Quick Wins
-            add(achievement(
-                id = "first_step",
-                title = "First Step",
-                description = "Complete your first focus session.",
-                unlocked = completedSessionsCount >= 1
-            ))
-            add(achievement(
-                id = "getting_consistent",
-                title = "Getting Consistent",
-                description = "Complete 3 focus sessions.",
-                unlocked = completedSessionsCount >= 3
-            ))
-            add(achievement(
-                id = "on_a_roll",
-                title = "On a Roll",
-                description = "Complete 7 focus sessions.",
-                unlocked = completedSessionsCount >= 7
-            ))
-            add(achievement(
-                id = "habit_builder",
-                title = "Habit Builder",
-                description = "Complete 10 focus sessions.",
-                unlocked = completedSessionsCount >= 10
-            ))
-            add(achievement(
-                id = "one_hour_in",
-                title = "One Hour In",
-                description = "Complete 1 hour of focused work.",
-                unlocked = totalCompletedHours >= 1.0
-            ))
-            add(achievement(
-                id = "level_up",
-                title = "Level Up",
-                description = "Reach level 2.",
-                unlocked = currentLevel >= 2
-            ))
+            add(
+                achievement(
+                    id = "first_step",
+                    title = "First Step",
+                    description = "Complete your first focus session.",
+                    unlocked = completedSessionsCount >= 1
+                )
+            )
+            add(
+                achievement(
+                    id = "getting_consistent",
+                    title = "Getting Consistent",
+                    description = "Complete 3 focus sessions.",
+                    unlocked = completedSessionsCount >= 3
+                )
+            )
+            add(
+                achievement(
+                    id = "on_a_roll",
+                    title = "On a Roll",
+                    description = "Complete 7 focus sessions.",
+                    unlocked = completedSessionsCount >= 7
+                )
+            )
+            add(
+                achievement(
+                    id = "habit_builder",
+                    title = "Habit Builder",
+                    description = "Complete 10 focus sessions.",
+                    unlocked = completedSessionsCount >= 10
+                )
+            )
+            add(
+                achievement(
+                    id = "one_hour_in",
+                    title = "One Hour In",
+                    description = "Complete 1 hour of focused work.",
+                    unlocked = totalCompletedHours >= 1.0
+                )
+            )
+            add(
+                achievement(
+                    id = "level_up",
+                    title = "Level Up",
+                    description = "Reach level 2.",
+                    unlocked = currentLevel >= 2
+                )
+            )
 
             // Mid-term Goals
-            add(achievement(
-                id = "routine_master",
-                title = "Routine Master",
-                description = "Complete 20 focus sessions.",
-                unlocked = completedSessionsCount >= 20
-            ))
-            add(achievement(
-                id = "point_collector",
-                title = "Point Collector",
-                description = "Earn 50 total points.",
-                unlocked = totalPoints >= 50
-            ))
-            add(achievement(
-                id = "centurion",
-                title = "Centurion",
-                description = "Earn 100 total points.",
-                unlocked = totalPoints >= 100
-            ))
-            add(achievement(
-                id = "deep_work",
-                title = "Deep Work",
-                description = "Complete 2 hours of focused work.",
-                unlocked = totalCompletedHours >= 2.0
-            ))
-            add(achievement(
-                id = "serious_session",
-                title = "Serious Session",
-                description = "Complete 5 hours of focused work.",
-                unlocked = totalCompletedHours >= 5.0
-            ))
-            add(achievement(
-                id = "climbing_up",
-                title = "Climbing Up",
-                description = "Reach level 5.",
-                unlocked = currentLevel >= 5
-            ))
+            add(
+                achievement(
+                    id = "routine_master",
+                    title = "Routine Master",
+                    description = "Complete 20 focus sessions.",
+                    unlocked = completedSessionsCount >= 20
+                )
+            )
+            add(
+                achievement(
+                    id = "point_collector",
+                    title = "Point Collector",
+                    description = "Earn 50 total points.",
+                    unlocked = totalPoints >= 50
+                )
+            )
+            add(
+                achievement(
+                    id = "centurion",
+                    title = "Centurion",
+                    description = "Earn 100 total points.",
+                    unlocked = totalPoints >= 100
+                )
+            )
+            add(
+                achievement(
+                    id = "deep_work",
+                    title = "Deep Work",
+                    description = "Complete 2 hours of focused work.",
+                    unlocked = totalCompletedHours >= 2.0
+                )
+            )
+            add(
+                achievement(
+                    id = "serious_session",
+                    title = "Serious Session",
+                    description = "Complete 5 hours of focused work.",
+                    unlocked = totalCompletedHours >= 5.0
+                )
+            )
+            add(
+                achievement(
+                    id = "climbing_up",
+                    title = "Climbing Up",
+                    description = "Reach level 5.",
+                    unlocked = currentLevel >= 5
+                )
+            )
 
             // Long-term Goals
-            add(achievement(
-                id = "focus_veteran",
-                title = "Focus Veteran",
-                description = "Complete 50 focus sessions.",
-                unlocked = completedSessionsCount >= 50
-            ))
-            add(achievement(
-                id = "legendary_focus",
-                title = "Legendary Focus",
-                description = "Complete 100 focus sessions.",
-                unlocked = completedSessionsCount >= 100
-            ))
-            add(achievement(
-                id = "point_hoarder",
-                title = "Point Hoarder",
-                description = "Earn 200 total points.",
-                unlocked = totalPoints >= 200
-            ))
-            add(achievement(
-                id = "elite_grinder",
-                title = "Elite Grinder",
-                description = "Earn 500 total points.",
-                unlocked = totalPoints >= 500
-            ))
-            add(achievement(
-                id = "deep_work_engine",
-                title = "Deep Work Engine",
-                description = "Complete 10 hours of focused work.",
-                unlocked = totalCompletedHours >= 10.0
-            ))
-            add(achievement(
-                id = "double_digits",
-                title = "Double Digits",
-                description = "Reach level 10.",
-                unlocked = currentLevel >= 10
-            ))
+            add(
+                achievement(
+                    id = "focus_veteran",
+                    title = "Focus Veteran",
+                    description = "Complete 50 focus sessions.",
+                    unlocked = completedSessionsCount >= 50
+                )
+            )
+            add(
+                achievement(
+                    id = "legendary_focus",
+                    title = "Legendary Focus",
+                    description = "Complete 100 focus sessions.",
+                    unlocked = completedSessionsCount >= 100
+                )
+            )
+            add(
+                achievement(
+                    id = "point_hoarder",
+                    title = "Point Hoarder",
+                    description = "Earn 200 total points.",
+                    unlocked = totalPoints >= 200
+                )
+            )
+            add(
+                achievement(
+                    id = "elite_grinder",
+                    title = "Elite Grinder",
+                    description = "Earn 500 total points.",
+                    unlocked = totalPoints >= 500
+                )
+            )
+            add(
+                achievement(
+                    id = "deep_work_engine",
+                    title = "Deep Work Engine",
+                    description = "Complete 10 hours of focused work.",
+                    unlocked = totalCompletedHours >= 10.0
+                )
+            )
+            add(
+                achievement(
+                    id = "double_digits",
+                    title = "Double Digits",
+                    description = "Reach level 10.",
+                    unlocked = currentLevel >= 10
+                )
+            )
         }
 
         val unlocked = all.filter { it.isUnlocked }

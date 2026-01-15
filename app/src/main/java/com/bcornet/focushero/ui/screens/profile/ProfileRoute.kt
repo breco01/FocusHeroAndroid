@@ -20,7 +20,7 @@ fun ProfileRoute(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val db = remember { DatabaseProvider.getDatabase(context) }
+    val db = remember { DatabaseProvider.getDatabase(context.applicationContext) }
     val repository = remember { FocusSessionRepository(db.focusSessionDao()) }
 
     val prefs = remember { AppPreferences(context.applicationContext) }
@@ -33,18 +33,17 @@ fun ProfileRoute(
 
     val vmState by vm.uiState.collectAsState()
 
-    val uiState = vmState.copy(
-        themePreference = themePreference,
-        accentColor = accentColorOption,
-    )
-
     ProfileScreen(
         contentPadding = contentPadding,
-        uiState = uiState,
+        uiState = vmState.copy(
+            themePreference = themePreference,
+            accentColor = accentColorOption,
+        ),
         onThemeSelected = { selected ->
             scope.launch { prefs.setThemePreference(selected) }
         },
         onAccentSelected = { selected ->
             scope.launch { prefs.setAccentColor(selected) }
-        },    )
+        },
+    )
 }
