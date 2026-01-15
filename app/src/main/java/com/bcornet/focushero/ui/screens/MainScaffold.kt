@@ -5,9 +5,11 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
@@ -30,32 +32,31 @@ fun MainScaffold(
         BottomNavItem(
             route = Routes.Focus,
             label = "Focus",
-            icon = {androidx.compose.material3.Icon(Icons.Filled.Home, contentDescription = "Focus")}
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Focus") },
         ),
         BottomNavItem(
             route = Routes.Sessions,
             label = "Sessions",
-            icon = {androidx.compose.material3.Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Sessions")}
+            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Sessions") },
         ),
         BottomNavItem(
             route = Routes.Stats,
             label = "Stats",
-            icon = {androidx.compose.material3.Icon(Icons.Filled.BarChart, contentDescription = "Stats")}
+            icon = { Icon(Icons.Filled.BarChart, contentDescription = "Stats") },
         ),
         BottomNavItem(
             route = Routes.Profile,
             label = "Profile",
-            icon = { androidx.compose.material3.Icon(Icons.Filled.Person, contentDescription = "Profile") }
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
         ),
-
-        )
+    )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
         bottomBar = {
-            NavigationBar{
+            NavigationBar {
                 items.forEach { item ->
                     val selected = currentRoute == item.route
 
@@ -64,20 +65,18 @@ fun MainScaffold(
                         onClick = {
                             if (!selected) {
                                 navController.navigate(item.route) {
-                                    popUpTo(Routes.Focus) {
-                                        saveState = true
-                                    }
+                                    popUpTo(Routes.Focus) { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
                             }
                         },
                         icon = item.icon,
-                        label = { androidx.compose.material3.Text(item.label) }
+                        label = { Text(item.label) },
                     )
                 }
             }
-        }
+        },
     ) { innerPadding ->
         AppNavHost(
             navController = navController,

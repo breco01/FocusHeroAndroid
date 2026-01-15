@@ -21,21 +21,10 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
-        composable(Routes.Focus) {
-            FocusRoute(contentPadding = contentPadding)
-        }
-
-        composable(Routes.Sessions) {
-            SessionsRoute(contentPadding = contentPadding)
-        }
-
-        composable(Routes.Stats) {
-            StatsRoute(contentPadding = contentPadding)
-        }
-
-        composable(Routes.Profile) {
-            ProfileRoute(contentPadding = contentPadding)
-        }
+        composable(Routes.Focus) { FocusRoute(contentPadding = contentPadding) }
+        composable(Routes.Sessions) { SessionsRoute(contentPadding = contentPadding) }
+        composable(Routes.Stats) { StatsRoute(contentPadding = contentPadding) }
+        composable(Routes.Profile) { ProfileRoute(contentPadding = contentPadding) }
     }
 }
 
