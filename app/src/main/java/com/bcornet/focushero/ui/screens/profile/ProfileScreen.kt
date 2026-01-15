@@ -1,5 +1,6 @@
 package com.bcornet.focushero.ui.screens.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -43,8 +44,6 @@ import com.bcornet.focushero.ui.theme.accentColorFor
 fun ProfileScreen(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     uiState: ProfileUiState,
-
-    // Appearance actions
     onThemeSelected: (ThemePreference) -> Unit = {},
     onAccentSelected: (AccentColorOption) -> Unit = {},
 ) {
@@ -311,7 +310,6 @@ private fun AchievementRow(
                 imageVector = endIcon,
                 contentDescription = null,
                 tint = accent,
-                modifier = Modifier,
             )
 
             Column(
@@ -364,7 +362,6 @@ private fun AppearanceCard(
                 fontWeight = FontWeight.SemiBold,
             )
 
-            // Theme selector
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -383,7 +380,6 @@ private fun AppearanceCard(
                 onSelected = onThemeSelected,
             )
 
-            // Accent selector
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -478,12 +474,7 @@ private fun AccentSelector(
                 color = color,
                 tonalElevation = if (isSelected) 2.dp else 0.dp,
                 shadowElevation = if (isSelected) 2.dp else 0.dp,
-                border = if (isSelected) {
-                    androidx.compose.foundation.BorderStroke(
-                        2.dp,
-                        MaterialTheme.colorScheme.onSurface
-                    )
-                } else null,
+                border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface) else null,
                 onClick = { onSelected(option) },
             ) {}
         }

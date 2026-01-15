@@ -20,7 +20,6 @@ val AccentPink = Color(0xFFEC4899)
 val AccentYellow = Color(0xFFEAB308)
 val AccentRed = Color(0xFFEF4444)
 
-
 fun accentColorFor(option: AccentColorOption): Color {
     return when (option) {
         AccentColorOption.DEFAULT -> Purple40
