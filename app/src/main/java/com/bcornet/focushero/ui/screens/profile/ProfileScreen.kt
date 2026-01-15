@@ -8,33 +8,45 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.bcornet.focushero.ui.theme.accentColorFor
 
 @Composable
 fun ProfileScreen(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     uiState: ProfileUiState,
+
+    // Appearance actions
+    onThemeSelected: (ThemePreference) -> Unit = {},
+    onAccentSelected: (AccentColorOption) -> Unit = {},
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -46,7 +58,7 @@ fun ProfileScreen(
                 .padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-        Text(
+            Text(
                 text = "Profile",
                 style = MaterialTheme.typography.headlineLarge,
             )
@@ -87,9 +99,11 @@ fun ProfileScreen(
                 isUnlockedSection = false,
             )
 
-            AppearanceCardPlaceholder(
+            AppearanceCard(
                 themePreference = uiState.themePreference,
                 accent = uiState.accentColor,
+                onThemeSelected = onThemeSelected,
+                onAccentSelected = onAccentSelected,
             )
         }
     }
@@ -329,6 +343,159 @@ private fun AchievementRow(
 }
 
 @Composable
+private fun AppearanceCard(
+    themePreference: ThemePreference,
+    accent: AccentColorOption,
+    onThemeSelected: (ThemePreference) -> Unit,
+    onAccentSelected: (AccentColorOption) -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = "Appearance",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+
+            // Theme selector
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Icon(imageVector = Icons.Outlined.Tune, contentDescription = null)
+                Text(
+                    text = "Theme",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+
+            SegmentedThemeSelector(
+                selected = themePreference,
+                onSelected = onThemeSelected,
+            )
+
+            // Accent selector
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Icon(imageVector = Icons.Outlined.Palette, contentDescription = null)
+                Text(
+                    text = "Accent color",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+
+            AccentSelector(
+                selected = accent,
+                onSelected = onAccentSelected,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SegmentedThemeSelector(
+    selected: ThemePreference,
+    onSelected: (ThemePreference) -> Unit,
+) {
+    val shape = RoundedCornerShape(14.dp)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        ThemePreference.values().forEach { option ->
+            val isSelected = option == selected
+            val label = when (option) {
+                ThemePreference.SYSTEM -> "System"
+                ThemePreference.LIGHT -> "Light"
+                ThemePreference.DARK -> "Dark"
+            }
+
+            OutlinedButton(
+                onClick = { onSelected(option) },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                ),
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AccentSelector(
+    selected: AccentColorOption,
+    onSelected: (AccentColorOption) -> Unit,
+) {
+    val options = remember {
+        listOf(
+            AccentColorOption.DEFAULT,
+            AccentColorOption.BLUE,
+            AccentColorOption.GREEN,
+            AccentColorOption.ORANGE,
+            AccentColorOption.PURPLE,
+            AccentColorOption.PINK,
+        )
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        options.forEach { option ->
+            val color = accentColorFor(option)
+            val isSelected = option == selected
+
+            Surface(
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(CircleShape),
+                color = color,
+                tonalElevation = if (isSelected) 2.dp else 0.dp,
+                shadowElevation = if (isSelected) 2.dp else 0.dp,
+                border = if (isSelected) {
+                    androidx.compose.foundation.BorderStroke(
+                        2.dp,
+                        MaterialTheme.colorScheme.onSurface
+                    )
+                } else null,
+                onClick = { onSelected(option) },
+            ) {}
+        }
+    }
+
+    Text(
+        text = "Selected: ${selected.name.lowercase().replaceFirstChar { it.uppercase() }}",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
 private fun StatBlock(
     label: String,
     value: String,
@@ -348,54 +515,5 @@ private fun StatBlock(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
         )
-    }
-}
-
-@Composable
-private fun AppearanceCardPlaceholder(
-    themePreference: ThemePreference,
-    accent: AccentColorOption,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text(
-                text = "Appearance",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Icon(imageVector = Icons.Outlined.Tune, contentDescription = null)
-                Text(
-                    text = "Theme: ${
-                        themePreference.name.lowercase().replaceFirstChar { it.uppercase() }
-                    }",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Icon(imageVector = Icons.Outlined.Palette, contentDescription = null)
-                Text(
-                    text = "Accent: ${accent.name.lowercase().replaceFirstChar { it.uppercase() }}",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-            }
-        }
     }
 }

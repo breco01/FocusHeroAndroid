@@ -232,26 +232,33 @@ private fun DailyFocusSection(
                     }
                 }
 
-                CartesianChartHost(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp),
-                    chart = rememberCartesianChart(
-                        rememberColumnCartesianLayer(),
-                        startAxis = VerticalAxis.rememberStart(),
-                        bottomAxis = HorizontalAxis.rememberBottom(
-                            valueFormatter = bottomAxisFormatter,
-                            itemPlacer = remember(daily) {
-                                HorizontalAxis.ItemPlacer.aligned(
-                                    spacing = { labelSpacingFor(daily.size) }
-                                )
-                            },
-                        ),
-                    ),
-                    modelProducer = modelProducer,
-                    scrollState = scrollState,
-                    zoomState = zoomState,
+                val accent = accentColor()
+                val vicoTheme = rememberM3VicoTheme(
+                    columnCartesianLayerColors = listOf(accent),
                 )
+
+                ProvideVicoTheme(vicoTheme) {
+                    CartesianChartHost(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        chart = rememberCartesianChart(
+                            rememberColumnCartesianLayer(),
+                            startAxis = VerticalAxis.rememberStart(),
+                            bottomAxis = HorizontalAxis.rememberBottom(
+                                valueFormatter = bottomAxisFormatter,
+                                itemPlacer = remember(daily) {
+                                    HorizontalAxis.ItemPlacer.aligned(
+                                        spacing = { labelSpacingFor(daily.size) }
+                                    )
+                                },
+                            ),
+                        ),
+                        modelProducer = modelProducer,
+                        scrollState = scrollState,
+                        zoomState = zoomState,
+                    )
+                }
             }
         }
     }
@@ -316,30 +323,40 @@ private fun DailyPointsSection(
                     }
                 }
 
-                CartesianChartHost(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp),
-                    chart = rememberCartesianChart(
-                        rememberLineCartesianLayer(),
-                        startAxis = VerticalAxis.rememberStart(),
-                        bottomAxis = HorizontalAxis.rememberBottom(
-                            valueFormatter = bottomAxisFormatter,
-                            itemPlacer = remember(daily) {
-                                HorizontalAxis.ItemPlacer.aligned(
-                                    spacing = { labelSpacingFor(daily.size) }
-                                )
-                            },
-                        ),
-                    ),
-                    modelProducer = modelProducer,
-                    scrollState = scrollState,
-                    zoomState = zoomState,
+                val accent = accentColor()
+                val vicoTheme = rememberM3VicoTheme(
+                    lineCartesianLayerColors = listOf(accent),
                 )
+
+                ProvideVicoTheme(vicoTheme) {
+                    CartesianChartHost(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        chart = rememberCartesianChart(
+                            rememberLineCartesianLayer(),
+                            startAxis = VerticalAxis.rememberStart(),
+                            bottomAxis = HorizontalAxis.rememberBottom(
+                                valueFormatter = bottomAxisFormatter,
+                                itemPlacer = remember(daily) {
+                                    HorizontalAxis.ItemPlacer.aligned(
+                                        spacing = { labelSpacingFor(daily.size) }
+                                    )
+                                },
+                            ),
+                        ),
+                        modelProducer = modelProducer,
+                        scrollState = scrollState,
+                        zoomState = zoomState,
+                    )
+                }
             }
         }
     }
 }
+
+@Composable
+private fun accentColor() = MaterialTheme.colorScheme.primary
 
 @Composable
 private fun completedColor() = androidx.compose.ui.graphics.Color(0xFF22C55E)
@@ -507,24 +524,31 @@ private fun WeeklyFocusSection(
                     }
                 }
 
-                CartesianChartHost(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp),
-                    chart = rememberCartesianChart(
-                        rememberColumnCartesianLayer(),
-                        startAxis = VerticalAxis.rememberStart(),
-                        bottomAxis = HorizontalAxis.rememberBottom(
-                            valueFormatter = bottomAxisFormatter,
-                            itemPlacer = remember {
-                                HorizontalAxis.ItemPlacer.aligned(spacing = { 1 })
-                            },
-                        ),
-                    ),
-                    modelProducer = modelProducer,
-                    scrollState = scrollState,
-                    zoomState = zoomState,
+                val accent = accentColor()
+                val vicoTheme = rememberM3VicoTheme(
+                    columnCartesianLayerColors = listOf(accent),
                 )
+
+                ProvideVicoTheme(vicoTheme) {
+                    CartesianChartHost(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        chart = rememberCartesianChart(
+                            rememberColumnCartesianLayer(),
+                            startAxis = VerticalAxis.rememberStart(),
+                            bottomAxis = HorizontalAxis.rememberBottom(
+                                valueFormatter = bottomAxisFormatter,
+                                itemPlacer = remember {
+                                    HorizontalAxis.ItemPlacer.aligned(spacing = { 1 })
+                                },
+                            ),
+                        ),
+                        modelProducer = modelProducer,
+                        scrollState = scrollState,
+                        zoomState = zoomState,
+                    )
+                }
             }
         }
     }

@@ -53,8 +53,11 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("androidx.compose.material:material-icons-extended")
 
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.vico.compose)
