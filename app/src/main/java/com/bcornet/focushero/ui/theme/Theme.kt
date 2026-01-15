@@ -30,7 +30,6 @@ private val LightColorScheme = lightColorScheme(
 fun FocusHeroTheme(
     themePreference: ThemePreference = ThemePreference.SYSTEM,
     accentColorOption: AccentColorOption = AccentColorOption.DEFAULT,
-
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
@@ -48,16 +47,12 @@ fun FocusHeroTheme(
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     val baseScheme = when {
-        useDynamic -> if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(
-            context
-        )
-
+        useDynamic -> if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         isDark -> DarkColorScheme
         else -> LightColorScheme
     }
 
     val accent = accentColorFor(accentColorOption)
-
     val finalScheme = baseScheme.withAccent(accent)
 
     MaterialTheme(
@@ -68,7 +63,6 @@ fun FocusHeroTheme(
 }
 
 private fun ColorScheme.withAccent(accent: Color): ColorScheme {
-    // Keep the rest of the scheme intact
     return copy(
         primary = accent,
         secondary = accent,
