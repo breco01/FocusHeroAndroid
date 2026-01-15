@@ -308,7 +308,7 @@ private fun AchievementRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Icon(
-                imageVector = if (unlocked) Icons.Outlined.CheckCircle else Icons.Outlined.Lock,
+                imageVector = endIcon,
                 contentDescription = null,
                 tint = accent,
                 modifier = Modifier,
@@ -418,7 +418,7 @@ private fun SegmentedThemeSelector(
             .clip(shape),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        ThemePreference.values().forEach { option ->
+        ThemePreference.entries.forEach { option ->
             val isSelected = option == selected
             val label = when (option) {
                 ThemePreference.SYSTEM -> "System"
@@ -456,8 +456,9 @@ private fun AccentSelector(
             AccentColorOption.BLUE,
             AccentColorOption.GREEN,
             AccentColorOption.ORANGE,
-            AccentColorOption.PURPLE,
             AccentColorOption.PINK,
+            AccentColorOption.YELLOW,
+            AccentColorOption.RED,
         )
     }
 
