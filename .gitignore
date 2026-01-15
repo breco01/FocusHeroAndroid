@@ -1,12 +1,18 @@
+# IntelliJ / Android Studio
 *.iml
+.idea/
 .gradle
 /local.properties
-.idea/
+
+# OS
 .DS_Store
 
+# Build outputs
 /build
 /captures
 .externalNativeBuild
 .cxx
 
+# APKs (ignore all except submission APK)
 *.apk
+!release/*.apk
