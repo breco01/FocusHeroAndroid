@@ -18,6 +18,9 @@ interface FocusSessionDao {
     @Query("SELECT * FROM focus_sessions ORDER BY startTimeEpochSeconds DESC")
     suspend fun getAllMostRecentFirst(): List<FocusSessionEntity>
 
+    @Query("SELECT COALESCE(SUM(pointsEarned), 0) FROM focus_sessions")
+    fun observeTotalPoints(): Flow<Int>
+
     @Query("DELETE FROM focus_sessions")
     suspend fun clearAll()
 }

@@ -9,48 +9,46 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
-import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
-import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
-import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.compose.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
 import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
@@ -83,10 +81,6 @@ fun StatsScreen(
                 EmptyStatsState()
                 return@Column
             }
-
-            SummaryCard(
-                summary = uiState.summary,
-            )
 
             DailyFocusSection(
                 daily = uiState.dailyFocusMinutes,
@@ -158,73 +152,6 @@ private fun EmptyStatsState() {
         Text(
             text = "Complete focus sessions to see your statistics here.",
             style = MaterialTheme.typography.bodyLarge,
-        )
-    }
-}
-
-@Composable
-private fun SummaryCard(
-    summary: StatsSummary,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            SummaryRow("Total focus time", "${summary.totalFocusMinutes} min")
-            SummaryRow("Total points", "${summary.totalPoints}")
-            SummaryRow("Total sessions", "${summary.totalSessions}")
-            SummaryRow("Completed sessions", "${summary.completedSessions}")
-            SummaryRow("Stopped sessions", "${summary.stoppedSessions}")
-            SummaryRow("Avg focus / day", "${summary.averageFocusMinutesPerDay} min")
-
-            if (summary.bestDay != null) {
-                val formatter = DateTimeFormatter.ofPattern("EEE, MMM d", Locale.US)
-                SummaryRow(
-                    "Best day",
-                    "${formatter.format(summary.bestDay)} (${summary.bestDayFocusMinutes} min)",
-                )
-            }
-            SummaryRow(
-                "Completion rate",
-                "${summary.completionRatePercent}%",
-            )
-
-            val total = (summary.completedSessions + summary.stoppedSessions).coerceAtLeast(0)
-            val progress =
-                if (total == 0) 0f else summary.completedSessions.toFloat() / total.toFloat()
-
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth(),
-                progress = { progress.coerceIn(0f, 1f) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun SummaryRow(
-    label: String,
-    value: String,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold,
         )
     }
 }

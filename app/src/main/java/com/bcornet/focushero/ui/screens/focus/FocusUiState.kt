@@ -1,9 +1,10 @@
 package com.bcornet.focushero.ui.screens.focus
 
+import com.bcornet.focushero.domain.logic.LevelCalculator
 import com.bcornet.focushero.domain.model.FocusSession
 import com.bcornet.focushero.domain.model.SessionStatus
 
-data class FocusUiState (
+data class FocusUiState(
     val sessionStatus: FocusSessionRunState = FocusSessionRunState.IDLE,
 
     val selectedDurationMinutes: Int = 25,
@@ -13,6 +14,11 @@ data class FocusUiState (
     val lastSessionResult: SessionResultBanner? = null,
 
     val recentSessions: List<FocusSession> = emptyList(),
+
+    val totalPoints: Int = 0,
+    val currentLevel: Int = 1,
+    val progressToNextLevel: Float = 0f,
+    val pointsRemainingToNextLevel: Int = LevelCalculator.DEFAULT_POINTS_PER_LEVEL,
 )
 
 enum class FocusSessionRunState {
@@ -21,7 +27,7 @@ enum class FocusSessionRunState {
     PAUSED,
 }
 
-data class SessionResultBanner (
+data class SessionResultBanner(
     val status: SessionStatus,
     val pointsEarned: Int,
 )

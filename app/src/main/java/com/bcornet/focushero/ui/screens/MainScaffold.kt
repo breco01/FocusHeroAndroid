@@ -2,9 +2,9 @@ package com.bcornet.focushero.ui.screens
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -43,11 +43,12 @@ fun MainScaffold(
             icon = {androidx.compose.material3.Icon(Icons.Filled.BarChart, contentDescription = "Stats")}
         ),
         BottomNavItem(
-            route = Routes.Settings,
-            label = "Settings",
-            icon = {androidx.compose.material3.Icon(Icons.Filled.Settings, contentDescription = "Settings")}
+            route = Routes.Profile,
+            label = "Profile",
+            icon = { androidx.compose.material3.Icon(Icons.Filled.Person, contentDescription = "Profile") }
         ),
-    )
+
+        )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

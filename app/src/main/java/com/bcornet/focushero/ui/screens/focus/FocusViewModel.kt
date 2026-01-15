@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.bcornet.focushero.data.repo.FocusSessionRepository
+import com.bcornet.focushero.domain.logic.LevelCalculator
 import com.bcornet.focushero.domain.logic.PointsCalculator
 import com.bcornet.focushero.domain.model.FocusSession
 import com.bcornet.focushero.domain.model.SessionStatus
@@ -31,6 +32,7 @@ class FocusViewModel(
 
     init {
         observeRecentSessions()
+        observeProgress()
     }
 
     fun setDurationMinutes(minutes: Int) {
@@ -108,13 +110,33 @@ class FocusViewModel(
         super.onCleared()
     }
 
-    private fun observeRecentSessions(){
+    private fun observeRecentSessions() {
         viewModelScope.launch {
             repository.observeSessionsMostRecentFirst()
                 .collectLatest { sessions ->
                     _uiState.update {
                         it.copy(
                             recentSessions = sessions.take(5)
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun observeProgress() {
+        viewModelScope.launch {
+            repository.observeTotalPoints()
+                .collectLatest { totalPoints ->
+                    val level = LevelCalculator.levelForTotalPoints(totalPoints)
+                    val progress = LevelCalculator.progressToNextLevel(totalPoints)
+                    val remaining = LevelCalculator.pointsRemainingToNextLevel(totalPoints)
+
+                    _uiState.update {
+                        it.copy(
+                            totalPoints = totalPoints,
+                            currentLevel = level,
+                            progressToNextLevel = progress,
+                            pointsRemainingToNextLevel = remaining,
                         )
                     }
                 }

@@ -7,8 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bcornet.focushero.ui.screens.focus.FocusRoute
+import com.bcornet.focushero.ui.screens.profile.ProfileRoute
 import com.bcornet.focushero.ui.screens.sessions.SessionsRoute
-import com.bcornet.focushero.ui.screens.settings.SettingsScreen
 import com.bcornet.focushero.ui.screens.stats.StatsRoute
 
 @Composable
@@ -33,8 +33,8 @@ fun AppNavHost(
             StatsRoute(contentPadding = contentPadding)
         }
 
-        composable(Routes.Settings) {
-            SettingsScreen(contentPadding = contentPadding)
+        composable(Routes.Profile) {
+            ProfileRoute(contentPadding = contentPadding)
         }
     }
 }
@@ -43,5 +43,5 @@ object Routes {
     const val Focus = "focus"
     const val Sessions = "sessions"
     const val Stats = "stats"
-    const val Settings = "settings"
+    const val Profile = "profile"
 }

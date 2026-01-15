@@ -12,7 +12,11 @@ class FocusSessionRepository (
 ) {
     fun observeSessionsMostRecentFirst(): Flow<List<FocusSession>> {
         return dao.observeAllMostRecentFirst()
-            .map{ entities -> entities.map { it.toDomain() } }
+            .map { entities -> entities.map { it.toDomain() } }
+    }
+
+    fun observeTotalPoints(): Flow<Int> {
+        return dao.observeTotalPoints()
     }
 
     suspend fun getSessionsMostRecentFirst(): List<FocusSession> {
