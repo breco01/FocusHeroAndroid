@@ -1,62 +1,62 @@
 
 # FocusHero
 
-FocusHero is een Android productivity applicatie ontwikkeld in het kader van het vak **Android Development**.
-De app helpt gebruikers hun focusgewoontes te verbeteren via tijdsgebonden focussessies, visuele feedback,
-statistieken en een lichte gamification-laag.
+FocusHero is an Android productivity application developed as part of the **Android Development** course.
+The app helps users improve their focus habits through timed focus sessions, visual feedback,
+statistics, and a lightweight gamification layer.
 
-De applicatie is volledig **offline-first**: alle data wordt lokaal opgeslagen,
-waardoor de app zonder netwerkverbinding correct en volledig blijft functioneren.
+The application is fully **offline-first**: all data is stored locally,
+allowing the app to function correctly and completely without a network connection.
 
 ---
 
 ## Features
 
--  **Focus sessions** met start, pauze, hervat en stop
--  **Gamification** met punten, levels, achievements en een visuele focus companion
--  **Statistieken dashboard**
-  - 7 / 14 / 30 dagen bereikselectie
-  - dagelijkse en wekelijkse aggregaties
-  - grafieken voor focus tijd en punten
-  - vergelijking completed vs stopped sessions
--  **Visuele focus companion** (Lottie)
-  - reageert op focus state (idle / focusing / paused)
-  - tijdelijke feedback bij completion (victory) of vroegtijdig stoppen (tired)
+-  **Focus sessions** with start, pause, resume, and stop support
+-  **Gamification** with points, levels, achievements, and a visual focus companion
+-  **Statistics dashboard**
+  - 7 / 14 / 30 day range selection
+  - daily and weekly aggregations
+  - charts for focused time and earned points
+  - comparison of completed vs stopped sessions
+-  **Visual focus companion** (Lottie animations)
+  - reacts to focus state (idle / focusing / paused)
+  - temporary feedback on completion (victory) or early stop (tired)
 -  **Theme & accent customization**
   - System / Light / Dark
-  - Accentkleur met onmiddellijke app-wide impact
--  **Offline-first dataopslag**
-  - alle data lokaal via Room
-  - geen backend of account vereist
--  **Deterministische demo data**
-  - voor ontwikkeling en statistische visualisaties
+  - Accent color applied app-wide in real time
+-  **Offline-first data storage**
+  - all data stored locally using Room
+  - no backend or account required
+-  **Deterministic demo data**
+  - used for development and meaningful statistics
 
 ---
 
 ## Architecture Overview
 
-De app volgt een **Jetpack Compose + MVVM-gebaseerde architectuur** met een duidelijke scheiding van verantwoordelijkheden.
+The app follows a **Jetpack Compose + MVVM-based architecture** with a clear separation of responsibilities.
 
-### UI layer
+### UI Layer
 - Jetpack Compose screens
-- Herbruikbare composables
-- Stateless waar mogelijk
+- Reusable composables
+- Stateless where possible
 
 ### ViewModels
-- State management via `StateFlow`
-- Timerlogica en gebruikersinteracties
+- State management using `StateFlow`
+- Timer logic and user interaction handling
 
 ### Domain
-- Pure business logic (punten- en levelberekening)
-- Geen Android-afhankelijkheden
+- Pure business logic (points and level calculations)
+- No Android framework dependencies
 
 ### Data
 - Room database
 - Repositories
 - DataStore Preferences
 
-De architectuur is bewust eenvoudig gehouden,
-met focus op leesbaarheid, voorspelbaarheid en correcte state handling.
+The architecture is intentionally kept simple,
+focusing on readability, predictability, and correct state handling.
 
 ---
 
@@ -158,46 +158,46 @@ app/src/main/java/com/bcornet/focushero/
 ## Core Design Decisions
 
 ### Offline-first
-Alle focus sessions, statistieken en instellingen worden lokaal opgeslagen.
-De app blijft volledig functioneel zonder internetverbinding.
+All focus sessions, statistics, and settings are stored locally.
+The app remains fully functional without an internet connection.
 
-### Gamification zonder druk
-Levels en punten zijn bedoeld om consistent gedrag te stimuleren,
-niet om competitieve druk te creëren.
+### Gamification without pressure
+Levels and points are designed to encourage consistency,
+not competition or pressure.
 
-### Visuele feedback
-De focus companion fungeert als state-indicator en motivatie-feedback,
-waardoor tekstuele uitleg tot een minimum beperkt blijft.
+### Visual feedback
+The focus companion acts as a state indicator and motivational feedback,
+keeping textual explanations to a minimum.
 
 ---
 
 ## UX & Design Principles
 
-- Minimalistische layout
-- Duidelijke visuele hiërarchie
-- Weinig tekst, veel betekenisvolle visuals
-- Consistente spacing en typografie
-- Accentkleur benadrukt acties en voortgang
+- Minimalistic layout
+- Clear visual hierarchy
+- Limited text, meaningful visuals
+- Consistent spacing and typography
+- Accent color highlights actions and progress
 
 ---
 
 ## Build & Run
 
-1. Open het project in Android Studio
-2. Sync Gradle
-3. Selecteer een emulator of fysiek toestel (API 26+)
-4. Run de app
+1. Open the project in **Android Studio**
+2. Sync Gradle dependencies
+3. Select an emulator or physical device (API 26+)
+4. Run the application
 
-Demo data wordt automatisch toegevoegd in debug builds.
+Demo data is automatically seeded in **debug builds**.
 
 ---
 
 ## Notes for Evaluation
 
-- Focus op codekwaliteit, structuur en UX
-- Bewuste architecturale keuzes
-- Geen backend of authenticatie (by design)
-- Volledig lokaal en deterministisch
+- Strong focus on code quality, structure, and UX
+- All architectural decisions are intentional and documented
+- No backend or authentication by design
+- Fully local and deterministic behavior
 
 ---
 
