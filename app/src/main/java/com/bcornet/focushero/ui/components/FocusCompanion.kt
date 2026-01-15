@@ -43,12 +43,25 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.bcornet.focushero.R
-import com.bcornet.focushero.domain.model.SessionStatus
-import com.bcornet.focushero.ui.screens.focus.FocusSessionRunState
-import com.bcornet.focushero.ui.screens.focus.FocusUiState
 import kotlinx.coroutines.delay
 
-private enum class CompanionMood {
+/**
+ * UI-only mood for the companion.
+ * Base mood comes from the timer state (Idle/Focusing/Paused).
+ * Victory/Tired are temporary overrides.
+ */
+enum class FocusCompanionMood {
+    Idle, Focusing, Paused
+}
+
+/**
+ * UI-only result status to drive temporary overrides.
+ */
+enum class FocusCompanionResult {
+    Completed, Stopped
+}
+
+private enum class CompanionMoodInternal {
     Idle, Focusing, Paused, Victory, Tired
 }
 
@@ -59,69 +72,86 @@ private data class MoodSpec(
     val iterations: Int,
 )
 
-/**
- * Focus companion hero card:
- * - Large Lottie zone
- * - Overlay badges: level + mood
- * - Progress block to next level
- *
- * Mood priority:
- * - Temporary override (Victory/Tired for ~2s based on lastSessionResult)
- * - Otherwise mapping from sessionStatus
- */
 @Composable
 fun FocusCompanion(
-    uiState: FocusUiState,
+    currentLevel: Int,
+    totalPoints: Int,
+    progressToNextLevel: Float,
+    pointsRemainingToNextLevel: Int,
+    baseMood: FocusCompanionMood,
+    result: FocusCompanionResult?,
     modifier: Modifier = Modifier,
 ) {
-    var moodOverride by remember { mutableStateOf<CompanionMood?>(null) }
+    var moodOverride by remember { mutableStateOf<CompanionMoodInternal?>(null) }
 
-    LaunchedEffect(uiState.lastSessionResult?.status) {
-        when (uiState.lastSessionResult?.status) {
-            SessionStatus.COMPLETED -> {
-                moodOverride = CompanionMood.Victory
+    LaunchedEffect(result) {
+        when (result) {
+            FocusCompanionResult.Completed -> {
+                moodOverride = CompanionMoodInternal.Victory
                 delay(2_000)
                 moodOverride = null
             }
-            SessionStatus.STOPPED -> {
-                moodOverride = CompanionMood.Tired
+
+            FocusCompanionResult.Stopped -> {
+                moodOverride = CompanionMoodInternal.Tired
                 delay(2_000)
                 moodOverride = null
             }
+
             null -> Unit
         }
     }
 
-    val baseMood = when (uiState.sessionStatus) {
-        FocusSessionRunState.IDLE -> CompanionMood.Idle
-        FocusSessionRunState.RUNNING -> CompanionMood.Focusing
-        FocusSessionRunState.PAUSED -> CompanionMood.Paused
+    val baseInternal = when (baseMood) {
+        FocusCompanionMood.Idle -> CompanionMoodInternal.Idle
+        FocusCompanionMood.Focusing -> CompanionMoodInternal.Focusing
+        FocusCompanionMood.Paused -> CompanionMoodInternal.Paused
     }
 
-    val mood = moodOverride ?: baseMood
+    val mood = moodOverride ?: baseInternal
 
     val moodSpec = when (mood) {
-        CompanionMood.Idle ->
-            MoodSpec("Idle", Icons.Filled.SentimentSatisfied, R.raw.hero_idle, LottieConstants.IterateForever)
+        CompanionMoodInternal.Idle ->
+            MoodSpec(
+                "Idle",
+                Icons.Filled.SentimentSatisfied,
+                R.raw.hero_idle,
+                LottieConstants.IterateForever
+            )
 
-        CompanionMood.Focusing ->
-            MoodSpec("Focusing", Icons.Filled.Bolt, R.raw.hero_focus, LottieConstants.IterateForever)
+        CompanionMoodInternal.Focusing ->
+            MoodSpec(
+                "Focusing",
+                Icons.Filled.Bolt,
+                R.raw.hero_focus,
+                LottieConstants.IterateForever
+            )
 
-        CompanionMood.Paused ->
-            MoodSpec("Paused", Icons.Filled.Pause, R.raw.hero_paused, LottieConstants.IterateForever)
+        CompanionMoodInternal.Paused ->
+            MoodSpec(
+                "Paused",
+                Icons.Filled.Pause,
+                R.raw.hero_paused,
+                LottieConstants.IterateForever
+            )
 
-        CompanionMood.Victory ->
+        CompanionMoodInternal.Victory ->
             MoodSpec("Victory", Icons.Filled.CheckCircle, R.raw.hero_victory, 1)
 
-        CompanionMood.Tired ->
-            MoodSpec("Tired", Icons.Filled.Bedtime, R.raw.hero_tired, LottieConstants.IterateForever)
+        CompanionMoodInternal.Tired ->
+            MoodSpec(
+                "Tired",
+                Icons.Filled.Bedtime,
+                R.raw.hero_tired,
+                LottieConstants.IterateForever
+            )
     }
 
     val composition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(moodSpec.rawRes)
     )
 
-    val progress by animateLottieCompositionAsState(
+    val animProgress by animateLottieCompositionAsState(
         composition = composition,
         iterations = moodSpec.iterations,
         restartOnPlay = true,
@@ -143,7 +173,6 @@ fun FocusCompanion(
                     .fillMaxWidth()
                     .weight(1f),
             ) {
-                // Lottie center
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -151,15 +180,14 @@ fun FocusCompanion(
                     if (composition != null) {
                         LottieAnimation(
                             composition = composition,
-                            progress = { progress },
+                            progress = { animProgress },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .scale(1.45f),
+                                .scale(1.25f),
                         )
                     }
                 }
 
-                // Overlay row
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -169,7 +197,7 @@ fun FocusCompanion(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     BadgePill(
-                        text = "Level ${uiState.currentLevel}",
+                        text = "Level $currentLevel",
                         icon = Icons.Filled.ArrowUpward,
                         contentDescription = "Level",
                     )
@@ -186,7 +214,7 @@ fun FocusCompanion(
 
             // --- Progress block ---
             Text(
-                text = "Progress to level ${uiState.currentLevel + 1}",
+                text = "Progress to level ${currentLevel + 1}",
                 style = MaterialTheme.typography.titleMedium,
             )
 
@@ -196,18 +224,18 @@ fun FocusCompanion(
             ) {
                 LinearProgressIndicator(
                     modifier = Modifier.weight(1f),
-                    progress = { uiState.progressToNextLevel.coerceIn(0f, 1f) },
+                    progress = { progressToNextLevel.coerceIn(0f, 1f) },
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    text = "${uiState.pointsRemainingToNextLevel} pts",
+                    text = "${pointsRemainingToNextLevel} pts",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
             Text(
-                text = "Total points: ${uiState.totalPoints}",
+                text = "Total points: $totalPoints",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bcornet.focushero.domain.model.SessionStatus
 import com.bcornet.focushero.ui.components.FocusCompanion
+import com.bcornet.focushero.ui.components.FocusCompanionMood
+import com.bcornet.focushero.ui.components.FocusCompanionResult
 import com.bcornet.focushero.ui.components.FocusSessionCard
 
 
@@ -79,10 +81,28 @@ fun FocusScreen(
             }
 
             // COMPANION (Lottie)
+            val companionBaseMood = when (uiState.sessionStatus) {
+                FocusSessionRunState.IDLE -> FocusCompanionMood.Idle
+                FocusSessionRunState.RUNNING -> FocusCompanionMood.Focusing
+                FocusSessionRunState.PAUSED -> FocusCompanionMood.Paused
+            }
+
+            val companionResult = when (uiState.lastSessionResult?.status) {
+                SessionStatus.COMPLETED -> FocusCompanionResult.Completed
+                SessionStatus.STOPPED -> FocusCompanionResult.Stopped
+                null -> null
+            }
+
             FocusCompanion(
-                uiState = uiState,
+                currentLevel = uiState.currentLevel,
+                totalPoints = uiState.totalPoints,
+                progressToNextLevel = uiState.progressToNextLevel,
+                pointsRemainingToNextLevel = uiState.pointsRemainingToNextLevel,
+                baseMood = companionBaseMood,
+                result = companionResult,
                 modifier = Modifier.fillMaxWidth(),
             )
+
 
             // Timer
             ElevatedCard(
